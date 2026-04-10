@@ -88,33 +88,48 @@
 <script>
     const grid = document.getElementById("grid");
 
-    const startDate = new Date(new Date().getFullYear(), 0, 1); // 1º de janeiro
+    const startDate = new Date(new Date().getFullYear(), 0, 1);
+
+    // Carrega dados salvos
+    const savedData = JSON.parse(localStorage.getItem("dotCalendar")) || {};
 
     for (let i = 0; i < 365; i++) {
         const dot = document.createElement("div");
         dot.classList.add("dot");
 
-        // cria a data baseada no índice
         const currentDate = new Date(startDate);
         currentDate.setDate(startDate.getDate() + i);
 
-        // formata a data (ex: 10 Abr 2026)
+        const dateKey = currentDate.toISOString().split("T")[0];
+
         const formattedDate = currentDate.toLocaleDateString("pt-BR", {
             day: "2-digit",
             month: "short",
             year: "numeric"
         });
 
-        // tooltip nativo
         dot.title = formattedDate;
 
+        // 🔁 Recupera estado salvo
+        if (savedData[dateKey]) {
+            dot.classList.add("active");
+        }
+
+        // 💾 Salva ao clicar
         dot.addEventListener("click", () => {
             dot.classList.toggle("active");
+
+            if (dot.classList.contains("active")) {
+                savedData[dateKey] = true;
+            } else {
+                delete savedData[dateKey];
+            }
+
+            localStorage.setItem("dotCalendar", JSON.stringify(savedData));
         });
 
         grid.appendChild(dot);
     }
 </script>
-
 </body>
 </html>
